@@ -12,5 +12,12 @@
   },
   "author": "VeryrrDefine",
   "license": "MIT",
-  "types": "./format-powiainanum.d.ts"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VeryrrDefine/format-powiainanum.git"
+  },
+  "bugs": {
+    "url": "https://github.com/VeryrrDefine/format-powiainanum/issues"
+  },
+  "homepage": "https://github.com/VeryrrDefine/format-powiainanum#readme"
 }
