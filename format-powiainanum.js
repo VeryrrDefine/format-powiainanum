@@ -51,7 +51,7 @@
                         if (bottom >= 1e10) bottom = Math.log10(Math.log10(Math.log10(bottom))) + 2
                         else bottom = Math.log10(Math.log10(bottom)) + 1
                         // Apply the remaining increments
-                        for (i = 2; i < height; i++) bottom = Math.log10(bottom) + 1
+                        for (let i = 2; i < height; i++) bottom = Math.log10(bottom) + 1
                     }
                     else bottom = 1 // The increment result is indistinguishable from 1
 
