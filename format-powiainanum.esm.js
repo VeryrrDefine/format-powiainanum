@@ -2,8 +2,7 @@
 // Code snippets from [format-expantanum.js by cloudytheconqueror]
 
 
-; (function (globalThis) {
-    "use strict"
+; export default (function () {
     let MAX_LOGP1_REPEATS = 48
     let LOG5E = 0.6213349345596119
     // Set smallTop to true to force the top value in the result below 10
@@ -117,7 +116,7 @@
         portions[0] = portions[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + ",")
         return portions[0]
     }
-
+    
     function regularFormat(num, precision) {
         if (isNaN(num)) return "NaN"
         let zeroCheck = num.array ? num.array[0][1] : num
@@ -336,24 +335,6 @@ S           B        B
             return "L".repeat(rep) + format(num);
         }
     }
-
     
-    if (typeof define == 'function' && define.amd) {
-        define(function () {
-            return format
-        })
-
-
-        // Node and other environments that support module.exports.
-    } else if (typeof module != 'undefined' && module.exports) {
-        module.exports = format
-
-        // Browser
-    } else {
-        if (!globalThis) {
-            globalThis = typeof self != 'undefined' && self && self.self == self
-                ? self : Function('return this')();
-        }
-        globalThis.format = format;
-    }
-})(this);
+    return format;
+})();
