@@ -4,7 +4,7 @@
   },
   "name": "format-powiainanum",
   "description": "Implementation of PsiCubed's letter notation for large number library.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "format-powiainanum.js",
   "module": "format-powiainanum.esm.js",
   "devDependencies": {},

@@ -1,6 +1,7 @@
 // format-powiainanum.js by VeryrrDefine
 // Code snippets from [format-expantanum.js by cloudytheconqueror]
-
+;
+import PowiainaNum from "powiaina_num.js";
 
 ; export default (function () {
     let MAX_LOGP1_REPEATS = 48
