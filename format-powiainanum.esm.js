@@ -4,6 +4,9 @@
 import PowiainaNum from "powiaina_num.js";
 
 ; export default (function () {
+ 
+/// FUNCTIONSTART  DONT REMOVE THIS LINE
+    "use strict"
     let MAX_LOGP1_REPEATS = 48
     let LOG5E = 0.6213349345596119
     // Set smallTop to true to force the top value in the result below 10
@@ -51,7 +54,7 @@ import PowiainaNum from "powiaina_num.js";
                         if (bottom >= 1e10) bottom = Math.log10(Math.log10(Math.log10(bottom))) + 2
                         else bottom = Math.log10(Math.log10(bottom)) + 1
                         // Apply the remaining increments
-                        for (i = 2; i < height; i++) bottom = Math.log10(bottom) + 1
+                        for (let i = 2; i < height; i++) bottom = Math.log10(bottom) + 1
                     }
                     else bottom = 1 // The increment result is indistinguishable from 1
 
@@ -84,6 +87,181 @@ import PowiainaNum from "powiaina_num.js";
         }
         return { bottom: bottom, top: top, height: height }
     }
+	function arraySort(array){
+		array.sort(function (a, b) {
+                return (function (a, b) {
+                    if (typeof a == 'number') {
+                        return 
+                    } else if (a[3] > b[3]) {
+                        return -1
+                    } else if (a[3] < b[3]) {
+                        return 1
+                    }
+                    else if (a[2] == "x" && b[2] != "x") {
+                        return -1
+                    } else if (a[2] != "x" && b[2] == "x") {
+                        return 1
+                    } else if (a[2] == "x" && b[2] == "x") {
+                        return -1
+                    } else if (a[2] > b[2]) {
+                        return -1
+                    } else if (a[2] < b[2]) {
+                        return 1
+                    } else if (a[0] == "x" && b[0] != "x") {
+                        return -1
+                    } else if (a[0] != "x" && b[0] == "x") {
+                        return 1
+                    } else if (a[0] == "x" && b[0] == "x") {
+                        return -1
+                    }
+                    else if (a[0] > b[0]) {
+                        return -1
+                    }
+                    else if (a[0] < b[0]) {
+                        return 1
+                    } else if (a[1] > b[1]) {
+                        return -1
+                    } else if (a[1] < b[1]) {
+                        return 1
+                    }
+
+
+                    return -1
+                })(a, b)
+            })
+
+	}
+	function arrayMerge(array){
+		var elemOffset = 0// a unnegative number
+		for (let i = 0; i < array.length - 2; ++i) {
+                if (array[i][0] == array[i + 1][0] && array[i][2] == array[i + 1][2] && array[i][3] == array[i + 1][3]) {
+                    // same array's merge
+                    array[i][1] += array[i + 1][1];
+                    array.splice(i + 1, 1);
+                    --i;
+			elemOffset++
+                }
+
+            }
+		return elemOffset
+	}
+	var debug = false;
+	function stopFormating(){
+		format = function (){return "NaN"}
+	}
+	function toggle(){
+		debug = !debug;
+	}
+	function myPolarize(array, hasOperationRepeat=true){
+		!debug || console.log("input", array);
+		let originum = new PowiainaNum(array);
+		var arrows = 0;
+		var repeation = 1;
+		var bottom = 0;
+	 	if (array.length==1){
+			if (array[0]>=1e10){
+				return {arrows: 1,
+				repeation: 2, bottom: Math.log10(Math.log10(array[0]))}
+			}
+
+			else if (array[0]>=10){
+				return {arrows:1, repeation: 1, bottom: Math.log10(array[0])}
+			} else return {arrows: 1, repeation: 0, bottom: array[0]}
+		}
+		arraySort(array)
+		arrayMerge(array);
+		var ptr = array.length-2;
+		var b= ()=>array[array.length-1]
+		var c= (x)=>{array[array.length-1]=x}
+		var repeatResult = 10001;
+		while (--repeatResult>=0) {
+			if (b()>=10){
+				let a = Math.log10(b());
+				array.push([1,1,1,1]);
+				ptr++
+				arraySort(array);
+				
+				let offset = arrayMerge(array);
+				ptr-=offset;
+				c(a);
+				!debug || console.log(">=10 -> <10" ,ptr, array)
+
+			}else {
+				if (ptr==0 && typeof array[ptr+1] == 'number' && ((hasOperationRepeat)||(!hasOperationRepeat && array[ptr][1]==1))) break;
+				if (ptr!=0 && typeof array[ptr+1] == 'number' && typeof array[ptr][0]=="number"&&(array[ptr][1]==1)&&(
+	array[ptr-1][0]=="x" || array[ptr-1][2]>array[ptr][2] || array[ptr-1][3]>array[ptr][3]
+				) && array[ptr][0]>=2) /*convert [x,1,1,1] sth to ["x", 1, 1, 1] x+f(base)*/ {
+					let arrow_count = array[ptr][0];
+					let base= b();
+					//x|10 = arrow-1+(log_5 base)/2
+					let Jx;
+					if (arrow_count==3)
+						Jx = base
+					else
+						!debug|console.log(arrow_count, base)
+					    Jx = arrow_count-1+(Math.log(base/2)/Math.log(5))
+					array[ptr][0]="x"
+				
+					c(Jx);
+					arraySort(array);
+					let offset=arrayMerge(array);
+					ptr-=offset;
+					!debug||console.log("arrow x to Jx conv", ptr, array);
+			}
+				if ((typeof array[ptr+1] == 'number') && (array[ptr][0]=="x") && b()<10 && ptr!=0){ // conver ["x", sth, j, k] sth2 to [1, 1, j+1, k]
+					let base = b();
+					let JRepeation = array[ptr][1]
+					let Kx = JRepeation+Math.log10(base);
+					array[ptr][1]=1;
+					array[ptr][0]=1;
+					array[ptr][2]++;
+					c(Kx);
+
+					arraySort(array);
+					let offset=arrayMerge(array);
+					ptr-=offset;
+					!debug||console.log("J...Jx to Kx", ptr, array);
+			
+				}
+				if (((ptr==0 && !hasOperationRepeat && array[ptr][1]!=1)||(ptr!=0))&&array[ptr][0]!="x" && b()<10) {
+					
+					let goal = ptr==0?array[ptr][0]+1 : array[ptr-1][1]
+					// AAAA..{x}..AAA b
+					// can be x+log10 b to
+					// B(x+log10 b)
+					if (b()==1 && ptr != 1 && array[ptr-1][0] > array[ptr][0] && array[ptr][1] == 1){
+						!debug || console.log("operator_setgoal",goal)
+						array[ptr][0]=array[ptr-1][0]
+					} else {
+						let right = array[ptr][1]+Math.log10(b());
+						array[ptr][0]++
+						array[ptr][1] = 1;
+						c(right);
+					}
+					
+					/*if (goal-50>array[ptr][0]) {
+						right = 1;
+					} else {
+					
+							right = 1+Math.log10(right)
+							array[ptr][0]++
+						
+					}*/
+					
+				
+					
+					arraySort(array);
+					let offset=arrayMerge(array);
+					ptr-=offset;
+					!debug||console.log("operator", ptr, array);
+				}
+			}
+		}
+		!debug||console.log("finalresult",array)
+	 if (repeatResult<=0) { console.warn("warning: "+JSON.stringify(originum.array)+ "seems took long time to parsing.")}	
+		return {bottom: b(), repeation: array[ptr][1], arrows: array[ptr][0], layer1: array[ptr][2], layer2: array[ptr][3] , array: array}
+
+	}
     function getTopJandlayer(num){
         let pol = polarize(num.array, true)
             let layerLess = new PowiainaNum(num)
@@ -117,7 +295,7 @@ import PowiainaNum from "powiaina_num.js";
         portions[0] = portions[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1" + ",")
         return portions[0]
     }
-    
+
     function regularFormat(num, precision) {
         if (isNaN(num)) return "NaN"
         let zeroCheck = num.array ? num.array[0][1] : num
@@ -187,8 +365,9 @@ import PowiainaNum from "powiaina_num.js";
             return "e".repeat(rep) + regularFormat(m, p) + "e" + commaFormat(e)
         }
         else if (num.lt("10^^1000000")) { // 1F5 ~ F1,000,000
-            let pol = polarize(array)
-            return regularFormat(pol.bottom, precision3) + "F" + commaFormat(pol.top)
+            let pol = myPolarize(array,1)
+		//return JSON.stringify(pol);
+            return regularFormat(pol.bottom, precision3) + "F" + commaFormat(pol.repeation)
         }
         else if (num.lt("10^^^5")) { // F1,000,000 ~ 1G5
             let rep = num.operator(2)
@@ -201,8 +380,8 @@ import PowiainaNum from "powiaina_num.js";
             return "F" + format(n, precision)
         }
         else if (num.lt("10^^^1000000")) { // 1G5 ~ G1,000,000
-            let pol = polarize(array)
-            return regularFormat(pol.bottom, precision3) + "G" + commaFormat(pol.top)
+            let pol = myPolarize(array,1)
+            return regularFormat(pol.bottom, precision3) + "G" + commaFormat(pol.repeation)
         }
         else if (num.lt("10^^^^5")) { // G1,000,000 ~ 1H5
             let rep = num.operator(3)
@@ -215,8 +394,8 @@ import PowiainaNum from "powiaina_num.js";
             return "G" + format(n, precision)
         }
         else if (num.lt("10^^^^1000000")) { // 1H5 ~ H1,000,000
-            let pol = polarize(array)
-            return regularFormat(pol.bottom, precision3) + "H" + commaFormat(pol.top)
+            let pol = myPolarize(array,1)
+            return regularFormat(pol.bottom, precision3) + "H" + commaFormat(pol.repeation)
         }
         else if (num.lt("10^^^^^5")) { // H1,000,000 ~ 5J4
             let rep = num.operator(4)
@@ -229,9 +408,20 @@ import PowiainaNum from "powiaina_num.js";
             return "H" + format(n, precision)
         }
         else if (num.lt("J1000000")) { // 5J4 ~ J1,000,000
-            let pol = polarize(array, true)
-            //(10{9})^8 (10{8})^2 (10{7})^1 (10{4})^4 (10{3})^6 (10{2})^7 (10{1})^186022287184 48571.21153293763
-            return regularFormat(Math.log10(pol.bottom) + pol.top, precision4) + "J" + commaFormat(pol.height)
+		let t = num.clone()
+            let pol = myPolarize(array)
+		// arrows|bottom
+		// Jx define:
+		// For x<2, Jx = Gx
+		// Jx = x|10
+		// x|10 = (int(x)+1)|2*5^frac(x)
+		// a|b
+		// int(x) = a-1
+		// frac(x) = log_5(b/2)
+		//let x = pol.arrows-1 + Math.log(pol.bottom)/Math.log(5)
+		return `${regularFormat(Math.log10(pol.bottom)+pol.repeation,precision4)}J${commaFormat(pol.arrows)}`
+		
+            //return regularFormat(Math.log10(pol.bottom) + pol.top, precision4) + "J" + commaFormat(pol.height)
         }
         else if (num.lt("J^4 10")) { // J1,000,000 ~ 1K5
             let rep = num.getOperator("x", 1, 1)
@@ -251,8 +441,8 @@ import PowiainaNum from "powiaina_num.js";
             // ExpantaNum.js considers J1 to be equal to 1e10 rather than 10,
             // hence num.lt("J^999999 10") rather than num.lt("J^1000000 1").
 
-            let pol = polarize(array, true)
-            let layerLess = new PowiainaNum(num)
+            let pol = myPolarize(array)
+            /*let layerLess = new PowiainaNum(num)
             let layer = num.getOperator("x", 1, 1)
             layerLess.operator("x", 1, 1, 0)
             let topJ
@@ -273,6 +463,9 @@ import PowiainaNum from "powiaina_num.js";
                 layer += 2
             }
             return regularFormat(topJ, precision4) + "K" + commaFormat(layer)
+	    */
+		
+		return `${regularFormat(pol.bottom, precision4)}K${commaFormat(pol.repeation)}`
         } else if (num.lt("l0 s1 a[10,[1,4,2,1]]")) { // K1000000 ~ 1L5
 
             if (num.lt(`l0 s1 a[10,["x",${Number.MAX_SAFE_INTEGER},1,1]]`)) {
@@ -336,6 +529,13 @@ S           B        B
             return "L".repeat(rep) + format(num);
         }
     }
+
+	format.myPolarize = myPolarize
+	format.arraySort = arraySort;
+	format.arrayMerge = arrayMerge;
+	format.stopFormating = stopFormating;
+	format.toggle = toggle;
+	/// FUNCTION
     
     return format;
 })();
